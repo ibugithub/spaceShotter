@@ -1,0 +1,12 @@
+#canvasContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 1%;
+  position: relative;
+}
+
+#gameArea {
+  background-color: lightgreen;
+}
