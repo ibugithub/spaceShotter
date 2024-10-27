@@ -42,8 +42,8 @@ export const HandleJoyStick = (player, canvas) => {
     console.log('Joystick Data:', stickData);
 
     // Calculate new positions
-    let newPositionX = player.positionX + stickData.x * (player.speed / 900);
-    let newPositionY = player.positionY - stickData.y * (player.speed / 900);
+    let newPositionX = player.positionX + stickData.x * (player.speed / 2000);
+    let newPositionY = player.positionY - stickData.y * (player.speed / 2000);
 
     // Constrain movement within canvas boundaries
     player.positionX = Math.max(0, Math.min(canvas.width - player.width, newPositionX));
