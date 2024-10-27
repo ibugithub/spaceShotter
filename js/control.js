@@ -1,3 +1,4 @@
+import { JoyStick } from "./joyStick.js";
 let playerSpeed = 20;
 
 export const HandleKeyboardEvents = (player, canvas) => {
@@ -35,3 +36,17 @@ const moveUp = (player) => {
 const moveDown = (player, canvas) => {
   player.positionY = Math.min(player.positionY + player.speed, canvas.height - player.height)
 }
+
+export const HandleJoyStick = (player, canvas) => {
+  new JoyStick('joyDiv', {}, (stickData) => {
+    console.log('Joystick Data:', stickData);
+
+    // Calculate new positions
+    let newPositionX = player.positionX + stickData.x * (player.speed / 300);
+    let newPositionY = player.positionY - stickData.y * (player.speed / 300);
+
+    // Constrain movement within canvas boundaries
+    player.positionX = Math.max(0, Math.min(canvas.width - player.width, newPositionX));
+    player.positionY = Math.max(0, Math.min(canvas.height - player.height, newPositionY));
+  });
+};

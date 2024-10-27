@@ -1,4 +1,4 @@
-import { HandleKeyboardEvents } from "./control.js";
+import { HandleKeyboardEvents, HandleJoyStick } from "./control.js";
 const canvas = document.getElementById("gameArea");
 const ctx = canvas.getContext("2d");
 canvas.width = canvas.parentElement.clientWidth;
@@ -127,6 +127,8 @@ const isOverlaped = (savedEnemyX, enemyX) => {
 
 const handleControls = () => {
   HandleKeyboardEvents(player, canvas);
+  HandleJoyStick(player, canvas);
+  console.log('joyStick func called')
 }
 
 const gameLoop = () => {
