@@ -1,10 +1,9 @@
-import { HandleKeyboardEvents, HandleJoyStick } from "./control.js";
+import { HandleKeyboardEvents} from "./control.js";
 const canvas = document.getElementById("gameArea");
 const ctx = canvas.getContext("2d");
 canvas.width = canvas.parentElement.clientWidth;
 canvas.height = canvas.parentElement.clientHeight;
-const joyStick = document.getElementById("joyDiv");
-let largeDisplay = true;
+const arrowKey = document.getElementById("keyDiv");
 
 const playerWidth = 60;
 const playerHeight = 65;
@@ -14,7 +13,11 @@ let player = {
   positionY: (canvas.height - playerHeight),
   width: 60,
   height: 65,
-  speed: 20,
+  speed: 2.5,
+  movingLeft: false,
+  movingRight: false,
+  movingUp: false,
+  movingDown: false,
 }
 
 const enemiesSrc = ['enemy4.png', 'enemy5.png', 'enemy6.png', 'enemy7.png', 'enemy8.png'];
@@ -25,7 +28,6 @@ let enemyHeight = 40;
 
 
 if (canvas.width >= 300 && canvas.width <= 425) {
-  largeDisplay = false;
   enemyWidth = 20;
   enemyHeight = 20;
   player.width = 30;
@@ -33,7 +35,6 @@ if (canvas.width >= 300 && canvas.width <= 425) {
 }
 
 if (canvas.width >= 426 && canvas.width <= 768) {
-  largeDisplay = false;
   enemyWidth = 30;
   enemyHeight = 30;
   player.width = 40;
@@ -41,7 +42,7 @@ if (canvas.width >= 426 && canvas.width <= 768) {
 }
 
 if (canvas.width >= 769 && canvas.width <= 1024) {
-  joyStick.style.display = "none";
+  arrowKey.style.display = "none";
   enemyWidth = 40;
   enemyHeight = 40;
   player.width = 50;
@@ -49,14 +50,14 @@ if (canvas.width >= 769 && canvas.width <= 1024) {
 }
 
 if (canvas.width >= 1025 && canvas.width <= 1440) {
-  joyStick.style.display = "none";
+  arrowKey.style.display = "none";
   enemyWidth = 60;
   enemyHeight = 60;
   player.width = 70;
   player.height = 75;
 }
 if (canvas.width >= 1441) {
-  joyStick.style.display = "none";
+  arrowKey.style.display = "none";
   enemyWidth = 70;
   enemyHeight = 70;
   player.width = 80;
@@ -134,10 +135,6 @@ const isOverlaped = (savedEnemyX, enemyX) => {
 
 const handleControls = () => {
   HandleKeyboardEvents(player, canvas);
-  if (!largeDisplay) {
-    HandleJoyStick(player, canvas);
-  }
-
 }
 
 const gameLoop = () => {
