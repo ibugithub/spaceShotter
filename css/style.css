@@ -8,7 +8,7 @@
 }
 
 #wholeContainer {
-  height: 95vh;
+  height: 92vh;
   display: flex; 
   gap: 10px;
   flex-direction: column; 
