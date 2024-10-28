@@ -1,4 +1,4 @@
-import { HandleKeyboardEvents} from "./control.js";
+import { HandleKeyboardEvents } from "./control.js";
 const canvas = document.getElementById("gameArea");
 const ctx = canvas.getContext("2d");
 canvas.width = canvas.parentElement.clientWidth;
@@ -26,6 +26,62 @@ let enemies = [];
 let enemyWidth = 40;
 let enemyHeight = 40;
 
+// let ammo = {
+//   src: "ammo.png",
+//   positionX: player.positionX + 13,
+//   positionY: player.positionY,
+//   width: 5,
+//   height: 20,
+//   speed: 5
+// }
+
+const ammoImageName = "ammo.png";
+let ammoImage;
+let ammoSets = [];
+class Ammo {
+  constructor(image, x, y, width, height, speed) {
+    this.image = image;
+    this.positionX = x;
+    this.positionY = y;
+    this.width = width;
+    this.height = height;
+    this.speed = speed;
+  }
+
+  isOffScreen() {
+    return this.positionY <= 0;
+  }
+
+  move() {
+    this.positionY -= this.speed;
+  }
+  drawAmmo() {
+    ctx.drawImage(this.image, this.positionX, this.positionY, this.width, this.height);
+  } 
+
+}
+
+const initializeAmmo = (count, gap) => {
+  for (let i = 0; i < count; i++) {
+    const ammo = new Ammo(ammoImage, player.positionX + (player.width/2), player.positionY - i*gap, 5, 20, 3);
+    ammoSets.push(ammo);
+  }
+  console.log('the ammo sets are in initfuc are', ammoSets);
+}
+
+const updateAmmoPosition = () => {
+  for (let i = 0; i < ammoSets.length; i++) {
+   if(ammoSets[i].isOffScreen()) {
+     ammoSets[i].positionY = player.positionY;
+     ammoSets[i].positionX = player.positionX + (player.width/2);
+   } else {
+     ammoSets[i].move();
+     ammoSets[i].drawAmmo();
+   }
+  }
+  console.log('the ammo sets in the updateAmmo are', ammoSets);    
+}
+
 
 if (canvas.width >= 300 && canvas.width <= 425) {
   enemyWidth = 20;
@@ -33,14 +89,12 @@ if (canvas.width >= 300 && canvas.width <= 425) {
   player.width = 30;
   player.height = 35;
 }
-
 if (canvas.width >= 426 && canvas.width <= 768) {
   enemyWidth = 30;
   enemyHeight = 30;
   player.width = 40;
   player.height = 45;
 }
-
 if (canvas.width >= 769 && canvas.width <= 1024) {
   arrowKey.style.display = "none";
   enemyWidth = 40;
@@ -48,7 +102,6 @@ if (canvas.width >= 769 && canvas.width <= 1024) {
   player.width = 50;
   player.height = 55;
 }
-
 if (canvas.width >= 1025 && canvas.width <= 1440) {
   arrowKey.style.display = "none";
   enemyWidth = 60;
@@ -75,6 +128,7 @@ const loadAsset = async (src) => {
 const loadAllAssets = async () => {
   try {
     player.src = await loadAsset(player.src);
+    ammoImage = await loadAsset(ammoImageName);
     const images = await Promise.all(enemiesSrc.map(src => loadAsset(src)));
     enemieImages.push(...images);
   } catch (error) {
@@ -141,19 +195,21 @@ const gameLoop = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawPlayer();
   drawEnemies();
+  updateAmmoPosition();
   requestAnimationFrame(gameLoop);
 }
 
 const main = () => {
   handleControls();
   initializeEnemies();
+  initializeAmmo(5, 50);
 }
 
 const initialize = async () => {
   console.log('Loading all assets...');
   await loadAllAssets();
   console.log('All assets loaded');
-  gameLoop();
   main();
+  gameLoop();
 }
 initialize();

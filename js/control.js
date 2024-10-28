@@ -20,7 +20,6 @@ export const HandleKeyboardEvents = (player, canvas) => {
   const stopMovingDown = () => { player.movingDown = false; };
 
   document.addEventListener('keydown', (event) => {
-    console.log('Key pressed:', event.key, player);
     switch (event.key) {
       case 'ArrowLeft':
         startMovingLeft();
@@ -91,6 +90,7 @@ export const HandleKeyboardEvents = (player, canvas) => {
 
 const moveLeft = (player) => {
   player.positionX = Math.max(player.positionX - player.speed, 0);
+  console.log('the player position is', player)
 }
 
 const moveRight = (player, canvas) => {
