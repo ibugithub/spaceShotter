@@ -26,18 +26,53 @@ let enemies = [];
 let enemyWidth = 40;
 let enemyHeight = 40;
 
-// let ammo = {
-//   src: "ammo.png",
-//   positionX: player.positionX + 13,
-//   positionY: player.positionY,
-//   width: 5,
-//   height: 20,
-//   speed: 5
-// }
+class Enemy {
+  constructor(image, x, y, width, height, speed) {
+    this.image = image;
+    this.positionX = x;
+    this.positionY = y;
+    this.width = width;
+    this.height = height;
+    this.speed = speed;
+  }
+  isOffScreen() {
+    return this.positionY > canvas.height;
+  }
+  move() {
+    this.positionY += this.speed;
+  }
+  drawEnemy() {
+    ctx.drawImage(this.image, this.positionX, this.positionY, this.width, this.height);
+  }
+
+  isCollidingWithAmmo(ammo) {
+    return (
+      this.positionX < ammo.positionX + ammo.width &&
+      this.positionX + this.width > ammo.positionX &&
+      this.positionY < ammo.positionY + ammo.height &&
+      this.positionY + this.height > ammo.positionY
+    );
+  }
+}
+
+const checkCollision = () => {
+  for (let i = enemies.length - 1; i >= 0; i--) {
+    for (let j = ammoSets.length - 1; j >= 0; j--) {
+      if (enemies[i].isCollidingWithAmmo(ammoSets[j])) {
+        enemies.splice(i, 1);
+        ammoSets.splice(j, 1);
+        break;
+      }
+    }
+  }
+}
 
 const ammoImageName = "ammo.png";
 let ammoImage;
 let ammoSets = [];
+const ammoWidth = 5;
+const ammoHeight = 20;
+let ammoSpeed = 5;
 class Ammo {
   constructor(image, x, y, width, height, speed) {
     this.image = image;
@@ -51,37 +86,30 @@ class Ammo {
   isOffScreen() {
     return this.positionY <= 0;
   }
-
   move() {
     this.positionY -= this.speed;
   }
   drawAmmo() {
     ctx.drawImage(this.image, this.positionX, this.positionY, this.width, this.height);
-  } 
-
-}
-
-const initializeAmmo = (count, gap) => {
-  for (let i = 0; i < count; i++) {
-    const ammo = new Ammo(ammoImage, player.positionX + (player.width/2), player.positionY - i*gap, 5, 20, 3);
-    ammoSets.push(ammo);
   }
-  console.log('the ammo sets are in initfuc are', ammoSets);
 }
 
-const updateAmmoPosition = () => {
-  for (let i = 0; i < ammoSets.length; i++) {
-   if(ammoSets[i].isOffScreen()) {
-     ammoSets[i].positionY = player.positionY;
-     ammoSets[i].positionX = player.positionX + (player.width/2);
-   } else {
-     ammoSets[i].move();
-     ammoSets[i].drawAmmo();
-   }
-  }
-  console.log('the ammo sets in the updateAmmo are', ammoSets);    
+const fireAmmo = () => {
+  const ammo = new Ammo(ammoImage, player.positionX + (player.width / 2), player.positionY, ammoWidth, ammoHeight, ammoSpeed);
+  ammoSets.push(ammo);
 }
 
+const updateAmmoPositions = () => {
+  ammoSets = ammoSets.filter((ammo) => {
+    if (ammo.isOffScreen()) {
+      return false;
+    } else {
+      ammo.move();
+      ammo.drawAmmo();
+      return true;
+    }
+  })
+}
 
 if (canvas.width >= 300 && canvas.width <= 425) {
   enemyWidth = 20;
@@ -135,45 +163,7 @@ const loadAllAssets = async () => {
     console.error('Failed to load asset:', error);
   }
 }
-const initializeEnemies = () => {
-  let savedEnemyX = [];
-  for (let i = 0; i < enemieImages.length; i++) {
-    let enemyX;
-    let validPosition = false;
-    while (!validPosition) {
-      enemyX = Math.floor(Math.random() * (canvas.width - enemyWidth));
-      if (!isOverlaped(savedEnemyX, enemyX)) {
-        validPosition = true;
-      }
-    }
-    const enemyY = 0;
-    const enemySpeed = 0.5 + Math.random() * (2.5 - 0.5)
-    savedEnemyX.push(enemyX);
 
-    const enemyWithPosition = {
-      image: enemieImages[i],
-      positionX: enemyX,
-      positionY: enemyY,
-      speed: enemySpeed,
-    }
-    enemies.push(enemyWithPosition);
-  }
-}
-
-const drawPlayer = () => {
-  ctx.drawImage(player.src, player.positionX, player.positionY, player.width, player.height);
-}
-
-const drawEnemies = () => {
-  for (let i = 0; i < enemies.length; i++) {
-    ctx.drawImage(enemies[i].image, enemies[i].positionX, enemies[i].positionY, enemyWidth, enemyHeight);
-    enemies[i].positionY += enemies[i].speed;
-    if (enemies[i].positionY > canvas.height) {
-      enemies[i].positionY = 0;
-    }
-  }
-}
-// checking if objects x position is overlaped
 const isOverlaped = (savedEnemyX, enemyX) => {
   if (savedEnemyX.length === 0) {
     return false;
@@ -185,7 +175,43 @@ const isOverlaped = (savedEnemyX, enemyX) => {
   }
   return false;
 }
+const throwEnemies = () => {
+  let savedEnemiesX = [];
+  for (let i = 0; i < enemieImages.length; i++) {
+    let enemyX;
+    let validPosition = false;
+    while (!validPosition) {
+      enemyX = Math.floor(Math.random() * (canvas.width - enemyWidth));
+      if (!isOverlaped(savedEnemiesX, enemyX)) {
+        validPosition = true;
+      }
+    }
+    const enemyY = 0;
+    const enemySpeed = 0.5 + Math.random() * (2.5 - 0.5)
+    savedEnemiesX.push(enemyX);
+    const enemy = new Enemy(enemieImages[i], enemyX, enemyY, enemyWidth, enemyHeight, enemySpeed);
+    enemies.push(enemy);
+  }
 
+  console.log('enemies', enemies);
+}
+
+const drawPlayer = () => {
+  ctx.drawImage(player.src, player.positionX, player.positionY, player.width, player.height);
+}
+
+const updateEnemiesPositions = () => {
+  enemies = enemies.filter((enemy) => {
+    if (enemy.isOffScreen()) {
+      return false;
+    } else {
+      enemy.move();
+      enemy.drawEnemy();
+      return true;
+    }
+  })
+}
+// checking if objects x position is overlaped
 
 const handleControls = () => {
   HandleKeyboardEvents(player, canvas);
@@ -194,15 +220,18 @@ const handleControls = () => {
 const gameLoop = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawPlayer();
-  drawEnemies();
-  updateAmmoPosition();
+  updateEnemiesPositions();
+  updateAmmoPositions();
+  checkCollision();
   requestAnimationFrame(gameLoop);
 }
 
 const main = () => {
   handleControls();
-  initializeEnemies();
-  initializeAmmo(5, 50);
+  const firingInterval = 300;
+  setInterval(fireAmmo, firingInterval);
+  const throwingInterval = 4000;
+  setInterval(throwEnemies, throwingInterval);
 }
 
 const initialize = async () => {
