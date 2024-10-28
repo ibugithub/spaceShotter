@@ -54,18 +54,18 @@ export const HandleKeyboardEvents = (player, canvas) => {
     }
   });
 
-  leftKey.addEventListener('touchstart', startMovingLeft);
-  leftKey.addEventListener('touchend', stopMovingLeft);
+  leftKey.addEventListener('touchstart', (event) => { event.preventDefault(); startMovingLeft(); });
+  leftKey.addEventListener('touchend', (event) => { event.preventDefault(); stopMovingLeft(); });
 
-  rightKey.addEventListener('touchstart', startMovingRight);
-  rightKey.addEventListener('touchend', stopMovingRight);
+  rightKey.addEventListener('touchstart', (event) => { event.preventDefault(); startMovingRight(); });
+  rightKey.addEventListener('touchend', (event) => { event.preventDefault(); stopMovingRight(); });
 
-  topKey.addEventListener('touchstart', startMovingUp);
-  topKey.addEventListener('touchend', stopMovingUp);
+  topKey.addEventListener('touchstart', (event) => {event.preventDefault(); startMovingUp();});
+  topKey.addEventListener('touchend', (event) => {event.preventDefault(); stopMovingUp();});
 
-  downKey.addEventListener('touchstart', startMovingDown);
-  downKey.addEventListener('touchend', stopMovingDown);
-  console.log('I am in the control func', player);
+  downKey.addEventListener('touchstart', (event) => {event.preventDefault();startMovingDown();});
+  downKey.addEventListener('touchend', (event) => {event.preventDefault(); stopMovingDown();});
+
 
   const updatePlayerPosition = () => {
     if (player.movingLeft) {
